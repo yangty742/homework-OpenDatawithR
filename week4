@@ -1,0 +1,49 @@
+# HW week 4
+# Tongyang Yang (tyang305@gatech.edu)
+# Created 2019-09-15
+# http://insideairbnb.com/get-the-data.html
+
+
+# install packages
+install.packages("tidyverse") 
+install.packages("ggplot2")
+install.packages("ivpack")
+library(ivpack)
+library(tidyverse)
+library(ggplot2)
+
+# set working directory
+# and load data
+setwd("//iac.nas.gatech.edu/tyang305/R-class")
+airbnbData <- read.csv('airbnb.csv', header=TRUE)
+summary(airbnbData)
+
+# data cleaning & gen new variables
+aver=3
+airbnbData <- airbnbData %>% mutate(occu = airbnbData$reviews_per_month/30*aver)
+male=(airbnbData$ga_gender == "male")
+family=(airbnbData$name_2 != "")
+host_local=(airbnbData$host_location == "Asheville, North Carolina, United States")
+verified=(airbnbData$host_identity_verified == "t")
+
+airbnbData[airbnbData$family == 1, "male"] <- NA
+
+
+# data visualizations
+ggplot(data=airbnbData, aes(host_listings_count)) + geom_histogram()
+
+airbnbData %>%
+  filter(ga_gender=='female') %>%
+  ggplot(aes(host_listings_count)) + geom_histogram()
+
+airbnbData %>%
+  filter(ga_gender=='male') %>%
+  ggplot(aes(host_listings_count)) + geom_histogram()
+
+# models
+fm <- ivreg(occu ~ ga_gender + price + bedrooms + host_local + verified| region_id + zipcode + latitude + longitude,
+            data = airbnbData)
+
+# ANOVA
+anova(fm, fm2)
+
